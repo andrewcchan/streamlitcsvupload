@@ -1,6 +1,5 @@
 import streamlit as st
 import plotly.express as px
-import forecast as fc
 import statsmodels.api as sm
 import pandas as pd
 import numpy as np
