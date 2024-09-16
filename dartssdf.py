@@ -2,16 +2,9 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_squared_error
 import plotly.express as px
-import matplotlib.pyplot as plt
-from darts.models import ExponentialSmoothing
 from darts import TimeSeries
-from darts.metrics import mape
-from darts.models import AutoARIMA
-import streamlit as st
+from darts.models import ExponentialSmoothing
 
-
-# create random x and y values
-st.title("Time Series Forecasting")
 
 # Generate data
 N = 365
@@ -27,18 +20,19 @@ df = pd.DataFrame({'date': dates, 'value': values})
 train_size = int(len(df) * 0.8)
 train, test = df[:train_size], df[train_size:]
 
+
 # Create a TimeSeries, specifying the time and value columns
 series = TimeSeries.from_dataframe(df, "date", "value")
 
 train_size = int(len(df) * 0.8)
 train, val = series[:train_size], series[train_size:]
 
-model=AutoARIMA()
-model.fit(train)
-forecast = model.predict(len(val))
-st.write(f"model {model} obtains MAPE: {mape(val, forecast):.2f}%")
 
-# plot
+model = ExponentialSmoothing()
+model.fit(train)
+prediction = model.predict(len(val), num_samples=1000)
 fig = px.line(series.pd_dataframe())
-fig.add_scatter(x=forecast.data_array()['date'].values, y=forecast.values().squeeze(),name='predicted',marker=dict(color="orange"))
-st.plotly_chart(fig, use_container_width=True)
+fig.add_scatter(x=prediction.time_index, y=prediction.low_quantile(0.5), mode="lines", name="forecast lower")
+fig.add_scatter(x=prediction.time_index, y=prediction.high_quantile(0.6), mode="lines", name="forecast upper", fillcolor='rgba(0,0,0,0)', fill='tonexty')
+fig.show()
+
