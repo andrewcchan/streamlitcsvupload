@@ -16,9 +16,16 @@ st.title("Time Series Forecasting")
 # Generate data
 N = 365
 P = 20
+Amplitude = st.slider('Amplitude', min_value=1, max_value=100, value=30)
+Freq = st.slider('1/Frequency', min_value=1, max_value=500, value=100)
+
+st.write(f"Amplitude: {Amplitude}")
+st.write(f"1/Frequency: {Freq}")
+
+# Rest of the code remains the same...
 start_date = pd.to_datetime('2024-01-01')
 dates = pd.date_range(start=start_date, periods=N, freq='D')
-values = [30 * np.sin(2 * np.pi * i / 100) + 10 * np.random.randn() for i, _ in enumerate(dates)]
+values = [Amplitude * np.sin(2 * np.pi * i / Freq) + 10 * np.random.randn() for i, _ in enumerate(dates)]
 
 # Create DataFrame
 df = pd.DataFrame({'date': dates, 'value': values})
@@ -45,6 +52,6 @@ st.write(f"model {model2} obtains MAPE: {mape(val, forecast2):.2f}%")
 
 # plot
 fig = px.line(series.pd_dataframe())
-fig.add_scatter(x=forecast.data_array()['date'].values, y=forecast.values().squeeze(),name='AutoARIMA',marker=dict(color="orange"))
+fig.add_scatter(x=forecast.data_array()['date'].values, y=forecast.values().squeeze(),name='AutoARIMA')
 fig.add_scatter(x=forecast.data_array()['date'].values, y=forecast2.values().squeeze(),name='NaiveDrift')
 st.plotly_chart(fig, use_container_width=True)
