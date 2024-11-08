@@ -8,7 +8,7 @@ from darts import TimeSeries
 from darts.metrics import mape
 from darts.models import AutoARIMA
 import streamlit as st
-
+from darts.models import NaiveDrift
 
 # create random x and y values
 st.title("Time Series Forecasting")
@@ -38,7 +38,13 @@ model.fit(train)
 forecast = model.predict(len(val))
 st.write(f"model {model} obtains MAPE: {mape(val, forecast):.2f}%")
 
+model2=NaiveDrift()
+model2.fit(train)
+forecast2 = model2.predict(len(val))
+st.write(f"model {model2} obtains MAPE: {mape(val, forecast2):.2f}%")
+
 # plot
 fig = px.line(series.pd_dataframe())
-fig.add_scatter(x=forecast.data_array()['date'].values, y=forecast.values().squeeze(),name='predicted',marker=dict(color="orange"))
+fig.add_scatter(x=forecast.data_array()['date'].values, y=forecast.values().squeeze(),name='AutoARIMA',marker=dict(color="orange"))
+fig.add_scatter(x=forecast.data_array()['date'].values, y=forecast2.values().squeeze(),name='NaiveDrift')
 st.plotly_chart(fig, use_container_width=True)
